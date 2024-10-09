@@ -8,10 +8,10 @@ function App() {
   const [count, setCount] = useState(0)
 
   return (
-    <>
-      <h1 className="text-4xl text-center my-10">Typing test</h1>
+    <div className='bg-slate-950 text-white h-[100vh]'>
+      <h1 className="text-4xl text-center py-10">Typing test</h1>
       <TypingTest/>
-    </>
+    </div>
   )
 }
 
