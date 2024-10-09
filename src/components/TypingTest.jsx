@@ -100,13 +100,13 @@ const TypingTest = () => {
                         )
                     )
                 }</div>
-            <div className="mx-40 flex gap-10 justify-evenly items-center">
+            {!isTyping && <div className="mx-40 flex gap-10 justify-evenly items-center">
                 <p>Time left: <strong>{timeLeft}</strong></p>
                 <p>Mistakes: <strong>{Mistakes}</strong></p>
                 <p>WPM: <strong>{WPM}</strong></p>
                 <p>Accuracy: <strong>{accuracy}</strong></p>
                 <button className='bg-yellow-300 p-1 rounded text-black' onClick={resetBtn}>Try again</button>
-            </div>
+            </div>}
         </div>
     )
 }
