@@ -1,8 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react'
 
-const TypingTest = () => {
-    const [paragraph, setParagraph] = useState(`According to the caption on the bronze marker placed by the Multnomah Chapter of the Daughters of the American Revolution on May 12, 1939, College Hall is the oldest building in continuous use for Educational purposes west of the Rocky Mountains. Here were educated men and women who have won recognition throughout the world in all the learned professions.`);
-    const maxTime = 60
+const TypingTest = ({ setStats, setShowStats }) => {
+    const para = 'the sky was bright blue and the sun was shining as the children ran through the field of green grass they laughed and played with joy feeling the warm breeze against their faces the day was perfect for an adventure they climbed trees explored the woods and discovered a hidden stream flowing gently through the forest they built a small fort using sticks and leaves imagining it was their secret hideaway as the sun began to set they gathered their things and headed home tired but happy from the day filled with fun and memories to cherish forever'
+    const [paragraph, setParagraph] = useState(``);
+    const maxTime = 10
+    const maxWords = 5
     const [timeLeft, settimeLeft] = useState(maxTime)
     const [timetaken, settimetaken] = useState(0)
     const [Mistakes, setMistakes] = useState(0)
@@ -15,13 +17,16 @@ const TypingTest = () => {
     const [correctwrong, setCorrectwrong] = useState([])
     const [isBackPressed, setisBackPressed] = useState(false)
     const [mode, setMode] = useState(null)
+    const [tempStats, settempStats] = useState([])
     useEffect(() => {
         inputRef.current.focus()
-        setCorrectwrong(Array(charRefs.current.length).fill('text-[#646669]'))
+        setCorrectwrong(Array(para.length).fill('text-[#646669]'))
     }, [mode])
+
     useEffect(() => {
         let interval;
         if (isTyping && timeLeft > 0 && charIndex < paragraph.length) {
+
             if (mode === "time") {
                 interval = setInterval(() => {
                     settimeLeft(timeLeft - 1);
@@ -34,12 +39,14 @@ const TypingTest = () => {
 
                     let acc = Math.round((correctChars / charIndex) * 100);
                     setaccuracy(acc)
+
+                    settempStats(prev => [...prev, { 'time': (maxTime - timeLeft + 1), 'wpm': wpm, 'accuracy': acc }])
+
                 }, 1000);
             }
             else if (mode === "words") {
                 interval = setInterval(() => {
                     settimetaken(timetaken + 1);
-                    console.log(timetaken)
                     if (charIndex < paragraph.length) {
                         let correctChars = charIndex - Mistakes;
 
@@ -49,25 +56,47 @@ const TypingTest = () => {
 
                         let acc = Math.round((correctChars / charIndex) * 100);
                         setaccuracy(acc)
+
+                        settempStats(prev => [...prev, { 'time': (timetaken), 'wpm': wpm, 'accuracy': acc }])
+
                     }
                 }, 1000);
             }
         }
-        else if (timeLeft === 0) {
+        else if (timeLeft === 0 || charIndex == paragraph.length) {
             clearInterval(interval)
             setisTyping(false)
+            setStats(tempStats)
+            setShowStats(true)
         }
-        if (mode === "words") {
-            setParagraph(paragraph.split(" ").slice(0, 5).join(" "));
-        }
-        else if (mode === "time") {
-            setParagraph(`According to the caption on the bronze marker placed by the Multnomah Chapter of the Daughters of the American Revolution on May 12, 1939, College Hall is the oldest building in continuous use for Educational purposes west of the Rocky Mountains. Here were educated men and women who have won recognition throughout the world in all the learned professions.`)
-        }
+
         return () => {
             clearInterval(interval)
         }
     }, [isTyping, timeLeft, timetaken, mode])
 
+    //change paragraph
+    useEffect(() => {
+        if (mode === "words") {
+            setParagraph(pickRandomWords(para, maxWords))
+        }
+        else if (mode === "time") {
+            setParagraph(para)
+        }
+    }, [mode])
+
+    const pickRandomWords = (paragraph, count) => {
+        // Split the paragraph by spaces
+        let words = paragraph.split(' ').filter(word => word.trim() !== '');
+        // Shuffle the array of words
+        for (let i = words.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [words[i], words[j]] = [words[j], words[i]];
+        }
+
+        // Return the first 'numWords' words
+        return words.slice(0, count).join(' ');
+    }
     const onKeyDown = (e) => {
         let currentChar = charRefs.current[charIndex]
         let typedChar = e.target.value.slice(-1)
@@ -83,7 +112,6 @@ const TypingTest = () => {
     }
     const handleOnChange = (e) => {
         const characters = charRefs.current
-        console.log(characters.length)
         let currentChar = charRefs.current[charIndex]
         let typedChar = e.target.value.slice(-1)
         if (!isBackPressed) {
@@ -114,12 +142,15 @@ const TypingTest = () => {
         setaccuracy(100)
         setCorrectwrong(Array(charRefs.current.length).fill('text-[#646669]'))
         document.getElementById('paragraph').value = ""
+        setStats([])
+        settempStats([])
+        setShowStats(false)
     }
     return (
         <div>
             <div className="flex gap-10 items-center justify-center">
-                <p className="text-2xl">Select mode</p>
-                <p className={`${mode === "words" ? "text-white" : 'text-[#646669]'}  cursor-pointer`} onClick={() => { setMode("words"); resetBtn() }}>Words - 5</p>
+                <p className="text-2xl">Select mode {mode}</p>
+                <p className={`${mode === "words" ? "text-white" : 'text-[#646669]'}  cursor-pointer`} onClick={() => { setMode("words"); resetBtn() }}>Words - 50</p>
                 <p className={`${mode === "time" ? "text-white" : 'text-[#646669]'} cursor-pointer`} onClick={() => { setMode("time"); resetBtn() }}>Time - 60 seconds</p>
             </div>
             <div className="h-96 border-2 mx-40 my-10 p-10 text-xl relative">
