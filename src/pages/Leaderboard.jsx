@@ -36,7 +36,7 @@ const Leaderboard = () => {
                             leaderboardData
                                 .map(
                                     (entry, index) => (
-                                        <tr key={entry._id} className="text-center border-b hover:bg-gray-100">
+                                        <tr key={entry._id} className="text-center border-b">
                                             <td className="py-2 px-4">{index + 1}</td>
                                             <td className="py-2 px-4">{entry.email}</td>
                                             <td className="py-2 px-4">{entry.stats.mode}</td>

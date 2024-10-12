@@ -17,7 +17,7 @@ const UserStats = ({ user }) => {
                     <tbody>
                         {user && user.statsHistory.map(
                             (entry, index) =>
-                                <tr key={entry._id} className="text-center border-b hover:bg-gray-100">
+                                <tr key={entry._id} className="text-center border-b">
                                     <td className="py-2 px-4">{index + 1}</td>
                                     <td className="py-2 px-4">{entry.mode}</td>
                                     <td className="py-2 px-4">{entry.wpm}</td>

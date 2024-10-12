@@ -4,9 +4,9 @@ const TypingTest = ({ setStats, setShowStats, user, showstats }) => {
 
 
     const para = `never gonna give you up never gonna let you down never gonna run around and desert you never gonna make you cry never gonna say goodbye never gonna tell a lie and hurt you we have known each other for so long your heart has been aching but you are too shy to say it say it inside we both know what is been going on going on we know the game and we are gonna play it and if you ask me how i am feeling do not tell me you are too blind to see`
-    const [paragraph, setParagraph] = useState(``);
+    const [paragraph, setParagraph] = useState(' ');
     const maxTime = 10
-    const maxWords = 5
+    const maxWords = 10
     const [timeLeft, settimeLeft] = useState(maxTime)
     const [timetaken, settimetaken] = useState(0)
     const [Mistakes, setMistakes] = useState(0)
@@ -20,7 +20,6 @@ const TypingTest = ({ setStats, setShowStats, user, showstats }) => {
     const [isBackPressed, setisBackPressed] = useState(false)
     const [mode, setMode] = useState(null)
     const [tempStats, settempStats] = useState([])
-
 
     useEffect(() => {
         inputRef.current.focus()
@@ -65,6 +64,7 @@ const TypingTest = ({ setStats, setShowStats, user, showstats }) => {
             }
         }
         else if (timeLeft === 0 || charIndex == paragraph.length) {
+            console.log("Over")
             clearInterval(interval)
             setisTyping(false)
             setShowStats(true)
@@ -86,6 +86,7 @@ const TypingTest = ({ setStats, setShowStats, user, showstats }) => {
         }
     }, [mode])
     useEffect(() => {
+        console.log(showstats)
         if (tempStats.length > 0 && showstats) {
             //Leaderboard
             const token = localStorage.getItem('authToken');
@@ -110,6 +111,7 @@ const TypingTest = ({ setStats, setShowStats, user, showstats }) => {
             //stat history
             async function appendHistory() {
                 const updatedStatsHistory = { "wpm": WPM, "mode": mode, "accuracy": accuracy, "time": timetaken };
+                console.log(updatedStatsHistory)
                 let response = await fetch("http://localhost:3000/api/auth/updateuser", {
                     method: "PUT",
                     body: JSON.stringify(updatedStatsHistory),
@@ -136,7 +138,6 @@ const TypingTest = ({ setStats, setShowStats, user, showstats }) => {
     const onKeyDown = (e) => {
         let currentChar = charRefs.current[charIndex]
         let typedChar = e.target.value.slice(-1)
-        console.log(typedChar)
         if (e.keyCode === 8 && charIndex > 0 && charIndex < paragraph.length && timeLeft > 0) {
             setisBackPressed(true)
             setcharIndex(charIndex - 1)

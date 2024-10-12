@@ -1,8 +1,8 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
 
-import TypingTest from './TypingTest'
-import Stats from './Stats'
+import TypingTest from '../components/TypingTest'
+import Stats from '../components/Stats'
 import { useNavigate } from 'react-router-dom';
 
 export default function Homepage({ user }) {

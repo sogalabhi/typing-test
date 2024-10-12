@@ -1,12 +1,12 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import './App.css'
-import Homepage from './components/Homepage'
-import Login from './components/Login'
-import Register from './components/Register'
+import Homepage from './pages/Homepage'
+import Login from './pages/Login'
+import Register from './pages/Register'
 import Navbar from './components/NavBar'
 import { useEffect, useState } from 'react'
-import Leaderboard from './components/Leaderboard'
-import UserStats from './components/USerStats'
+import Leaderboard from './pages/Leaderboard'
+import UserStats from './pages/UserStats'
 
 function App() {
 
