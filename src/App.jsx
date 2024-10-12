@@ -1,18 +1,50 @@
-import { useState } from 'react'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import './App.css'
-import TypingTest from './components/TypingTest'
-import Stats from './components/Stats'
+import Homepage from './components/Homepage'
+import Login from './components/Login'
+import Register from './components/Register'
+import Navbar from './components/NavBar'
+import { useEffect, useState } from 'react'
+import Leaderboard from './components/Leaderboard'
+import UserStats from './components/USerStats'
 
 function App() {
-  const [stats, setStats] = useState([])
-  const [showstats, setShowStats] = useState(false);
+
+  const [user, setuser] = useState()
+  useEffect(() => {
+    async function getuser() {
+
+      const token = localStorage.getItem('authToken');
+      const myHeaders = new Headers();
+      myHeaders.append("Content-Type", " application/json");
+      myHeaders.append("auth-token", token);
+
+      const requestOptions = {
+        method: "GET",
+        headers: myHeaders,
+        redirect: "follow"
+      };
+
+      const response = await fetch("http://localhost:3000/api/stat/getuser", requestOptions).catch((error) => console.error(error))
+      const json = await response.json()
+      if (json) {
+        setuser(json)
+      }
+    }
+    getuser()
+  }, [])
 
   return (
-    <div className='bg-slate-950 text-white h-[100vh]'>
-      <h1 className="text-4xl text-center py-10">Typing test</h1>
-      <TypingTest stats={stats} setStats={setStats} showstats={showstats} setShowStats={setShowStats} />
-      <Stats stats={stats} showstats={showstats} />
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route index element={<><Navbar /><Homepage user={user} /></>} />
+        <Route path="login" element={<Login />} />
+        <Route path="register" element={<Register />} />
+        <Route path="leaderboard" element={<><Navbar /><Leaderboard user={user} /></>} />
+        <Route path="userstats" element={<><Navbar /><UserStats user={user} /></>} />
+      </Routes>
+    </BrowserRouter>
+
   )
 }
 

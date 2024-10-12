@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react'
 
-const TypingTest = ({ setStats, setShowStats }) => {
-    const para = 'the sky was bright blue and the sun was shining as the children ran through the field of green grass they laughed and played with joy feeling the warm breeze against their faces the day was perfect for an adventure they climbed trees explored the woods and discovered a hidden stream flowing gently through the forest they built a small fort using sticks and leaves imagining it was their secret hideaway as the sun began to set they gathered their things and headed home tired but happy from the day filled with fun and memories to cherish forever'
+const TypingTest = ({ setStats, setShowStats, user, showstats }) => {
+
+
+    const para = `never gonna give you up never gonna let you down never gonna run around and desert you never gonna make you cry never gonna say goodbye never gonna tell a lie and hurt you we have known each other for so long your heart has been aching but you are too shy to say it say it inside we both know what is been going on going on we know the game and we are gonna play it and if you ask me how i am feeling do not tell me you are too blind to see`
     const [paragraph, setParagraph] = useState(``);
     const maxTime = 10
     const maxWords = 5
@@ -18,6 +20,8 @@ const TypingTest = ({ setStats, setShowStats }) => {
     const [isBackPressed, setisBackPressed] = useState(false)
     const [mode, setMode] = useState(null)
     const [tempStats, settempStats] = useState([])
+
+
     useEffect(() => {
         inputRef.current.focus()
         setCorrectwrong(Array(para.length).fill('text-[#646669]'))
@@ -26,7 +30,6 @@ const TypingTest = ({ setStats, setShowStats }) => {
     useEffect(() => {
         let interval;
         if (isTyping && timeLeft > 0 && charIndex < paragraph.length) {
-
             if (mode === "time") {
                 interval = setInterval(() => {
                     settimeLeft(timeLeft - 1);
@@ -56,9 +59,7 @@ const TypingTest = ({ setStats, setShowStats }) => {
 
                         let acc = Math.round((correctChars / charIndex) * 100);
                         setaccuracy(acc)
-
                         settempStats(prev => [...prev, { 'time': (timetaken), 'wpm': wpm, 'accuracy': acc }])
-
                     }
                 }, 1000);
             }
@@ -66,8 +67,8 @@ const TypingTest = ({ setStats, setShowStats }) => {
         else if (timeLeft === 0 || charIndex == paragraph.length) {
             clearInterval(interval)
             setisTyping(false)
-            setStats(tempStats)
             setShowStats(true)
+            setStats(tempStats)
         }
 
         return () => {
@@ -81,9 +82,45 @@ const TypingTest = ({ setStats, setShowStats }) => {
             setParagraph(pickRandomWords(para, maxWords))
         }
         else if (mode === "time") {
-            setParagraph(para)
+            setParagraph(pickRandomWords(para, 97))
         }
     }, [mode])
+    useEffect(() => {
+        if (tempStats.length > 0 && showstats) {
+            //Leaderboard
+            const token = localStorage.getItem('authToken');
+            const raw = JSON.stringify({
+                "stats": { "wpm": WPM, "mode": mode, "accuracy": accuracy, "time": timetaken }
+            });
+            const myHeaders = new Headers();
+            myHeaders.append("Content-Type", " application/json");
+            myHeaders.append("auth-token", token);
+            async function createstat() {
+                let response = await fetch("http://localhost:3000/api/stat/createstat", {
+                    method: "POST",
+                    body: raw,
+                    headers: myHeaders
+                });
+
+                let data = await response.text();
+                console.log(data)
+            }
+            createstat()
+
+            //stat history
+            async function appendHistory() {
+                const updatedStatsHistory = { "wpm": WPM, "mode": mode, "accuracy": accuracy, "time": timetaken };
+                let response = await fetch("http://localhost:3000/api/auth/updateuser", {
+                    method: "PUT",
+                    body: JSON.stringify(updatedStatsHistory),
+                    headers: myHeaders
+                });
+                let data = await response.text();
+                console.log(data)
+            }
+            appendHistory()
+        }
+    }, [showstats])
 
     const pickRandomWords = (paragraph, count) => {
         // Split the paragraph by spaces
@@ -93,13 +130,13 @@ const TypingTest = ({ setStats, setShowStats }) => {
             const j = Math.floor(Math.random() * (i + 1));
             [words[i], words[j]] = [words[j], words[i]];
         }
-
         // Return the first 'numWords' words
         return words.slice(0, count).join(' ');
     }
     const onKeyDown = (e) => {
         let currentChar = charRefs.current[charIndex]
         let typedChar = e.target.value.slice(-1)
+        console.log(typedChar)
         if (e.keyCode === 8 && charIndex > 0 && charIndex < paragraph.length && timeLeft > 0) {
             setisBackPressed(true)
             setcharIndex(charIndex - 1)

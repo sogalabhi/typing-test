@@ -10,7 +10,6 @@ const Stats = ({ stats, setStats, showstats }) => {
     const labels = []
     const wpms = []
     const acc = []
-    console.log(stats[0])
     stats.map((item, index) => (
         labels.push(item.time)
     ))
@@ -20,7 +19,6 @@ const Stats = ({ stats, setStats, showstats }) => {
     stats.map((item, index) => (
         acc.push(item.accuracy)
     ))
-    console.log(labels)
     const data = {
         labels: labels,
         datasets: [
@@ -28,8 +26,7 @@ const Stats = ({ stats, setStats, showstats }) => {
                 label: 'WPM',
                 data: wpms,
                 borderColor: 'rgba(75, 192, 192, 1)',
-                fill: true,
-                cubicInterpolationMode: 'monotone',
+                fill: false,
                 tension: 0.4
             },
             {
@@ -37,7 +34,6 @@ const Stats = ({ stats, setStats, showstats }) => {
                 data: acc,
                 borderColor: 'rgba(255, 201, 51, 1)',
                 fill: true,
-                cubicInterpolationMode: 'monotone',
                 tension: 0.4
             },
         ],
